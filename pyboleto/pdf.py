@@ -141,11 +141,20 @@ class BoletoPDF(object):
             (((linhaInicial + 0) * self.heightLine)) + self.space,
             boletoDados.format_nosso_numero()
         )
-        self.pdfCanvas.drawString(
-            self.widthCanhoto - (35 * mm) + self.space,
-            (((linhaInicial + 0) * self.heightLine)) + self.space,
-            boletoDados.data_vencimento.strftime('%d/%m/%Y')
-        )
+        if boletoDados.data_vencimento:
+
+            self.pdfCanvas.drawString(
+                self.widthCanhoto - (35 * mm) + self.space,
+                (((linhaInicial + 0) * self.heightLine)) + self.space,
+                boletoDados.data_vencimento.strftime('%d/%m/%Y')
+            )
+        else:
+            self.pdfCanvas.drawString(
+                self.widthCanhoto - (35 * mm) + self.space,
+                (((linhaInicial + 0) * self.heightLine)) + self.space,
+                boletoDados.data_vencimento
+            )
+
         self.pdfCanvas.drawString(
             self.space,
             (((linhaInicial + 1) * self.heightLine)) + self.space,
@@ -337,12 +346,18 @@ class BoletoPDF(object):
             (((linhaInicial + 2) * self.heightLine)) + self.space,
             boletoDados.cedente_documento
         )
-        self.pdfCanvas.drawString(
-            self.width - (30 * mm) + self.space,
-            (((linhaInicial + 2) * self.heightLine)) + self.space,
-            boletoDados.data_vencimento.strftime('%d/%m/%Y')
-        )
-
+        if boletoDados.data_vencimento:
+            self.pdfCanvas.drawString(
+                self.width - (30 * mm) + self.space,
+                (((linhaInicial + 2) * self.heightLine)) + self.space,
+                boletoDados.data_vencimento.strftime('%d/%m/%Y')
+            )
+        else:
+            self.pdfCanvas.drawString(
+                self.width - (30 * mm) + self.space,
+                (((linhaInicial + 2) * self.heightLine)) + self.space,
+                boletoDados.data_vencimento
+            )
         # Take care of long field
         sacado0 = unicode(boletoDados.sacado[0])
         while(stringWidth(sacado0,
@@ -712,11 +727,19 @@ class BoletoPDF(object):
             y + self.space,
             boletoDados.local_pagamento
         )
-        self.pdfCanvas.drawRightString(
-            self.width - 2 * self.space,
-            y + self.space,
-            boletoDados.data_vencimento.strftime('%d/%m/%Y')
-        )
+        if boletoDados.data_vencimento:
+            self.pdfCanvas.drawRightString(
+                self.width - 2 * self.space,
+                y + self.space,
+                boletoDados.data_vencimento.strftime('%d/%m/%Y')
+            )
+        else:
+            self.pdfCanvas.drawRightString(
+                self.width - 2 * self.space,
+                y + self.space,
+                boletoDados.data_vencimento
+            )
+
         self.pdfCanvas.setFont('Helvetica', self.fontSizeTitle)
 
         # Linha grossa com primeiro campo logo tipo do banco
