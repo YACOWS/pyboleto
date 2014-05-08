@@ -190,30 +190,37 @@ class BoletoData(object):
 
         for attr, length, data_type in [
             ('codigo_banco', 3, str),
-            ('moeda', 1, str),
+            ('moeda', 1, unicode),
             ('data_vencimento', None, datetime.date),
-            ('valor_documento', -1, str),
-            ('campo_livre', 25, str),
+            ('valor_documento', -1, unicode),
+            ('campo_livre', 25, unicode),
             ]:
             value = getattr(self, attr)
-            if not isinstance(value, data_type):
-                raise TypeError("%s.%s must be a %s, got %r (type %s)" % (
-                    self.__class__.__name__, attr, data_type.__name__, value,
-                    type(value).__name__))
-            if data_type == str and length != -1 and len(value) != length:
-                raise ValueError(
-                    "%s.%s must have a length of %d, not %r (len: %d)" % (
-                    self.__class__.__name__, attr, length, value, len(value)))
+            if not attr == 'data_vencimento' and not attr == 'valor_documento':
+                if not isinstance(value, data_type):
+                    raise TypeError("%s.%s must be a %s, got %r (type %s)" % (
+                        self.__class__.__name__, attr, data_type.__name__, value,
+                        type(value).__name__))
+                if data_type == str and length != -1 and len(value) != length:
+                    raise ValueError(
+                        "%s.%s must have a length of %d, not %r (len: %d)" % (
+                        self.__class__.__name__, attr, length, value, len(value)))
 
-        due_date_days = (self.data_vencimento - _EPOCH).days
-        if not (9999 >= due_date_days >= 0):
-            raise TypeError(
-                "Invalid date, must be between 1997/07/01 and "
-                "2024/11/15")
-        num = "%s%1s%04d%010d%24s" % (self.codigo_banco,
+        if self.data_vencimento:
+            due_date_days = (self.data_vencimento - _EPOCH).days
+            if not (9999 >= due_date_days >= 0):
+                raise TypeError(
+                    "Invalid date, must be between 1997/07/01 and "
+                    "2024/11/15")
+            strfmt = "%s%1s%04d%010d%24s"
+        else:
+            due_date_days = '0000'
+            strfmt = "%s%1s%010d%24s"
+
+        num = strfmt % (self.codigo_banco,
                                       self.moeda,
                                       due_date_days,
-                                      Decimal(self.valor_documento) * 100,
+                                      Decimal(self.valor_documento or 0) * 100,
                                       self.campo_livre)
         dv = self.calculate_dv_barcode(num)
 
