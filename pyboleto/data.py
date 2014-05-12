@@ -216,7 +216,6 @@ class BoletoData(object):
             due_date_days = '0000'
             strfmt = "%s%1s%04s%010s%24s"
 
-
         num = strfmt % (self.codigo_banco,
                                       self.moeda,
                                       due_date_days,
