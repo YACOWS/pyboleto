@@ -187,7 +187,6 @@ class BoletoData(object):
         20 a 44  25  Campo Livre definido por cada banco
         Total    44
         """
-
         for attr, length, data_type in [
             ('codigo_banco', 3, str),
             ('moeda', 1, unicode),
@@ -212,15 +211,16 @@ class BoletoData(object):
                 raise TypeError(
                     "Invalid date, must be between 1997/07/01 and "
                     "2024/11/15")
-            strfmt = "%s%1s%04d%010d%24s"
+            strfmt = "%s%1s%04d%010s%24s"
         else:
             due_date_days = '0000'
-            strfmt = "%s%1s%010d%24s"
+            strfmt = "%s%1s%04s%010s%24s"
+
 
         num = strfmt % (self.codigo_banco,
                                       self.moeda,
                                       due_date_days,
-                                      Decimal(self.valor_documento or 0) * 100,
+                                      Decimal(self.valor_documento or 0) * 100 or '0000000000',
                                       self.campo_livre)
         dv = self.calculate_dv_barcode(num)
 
