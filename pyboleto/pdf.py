@@ -10,6 +10,7 @@
 
 """
 import os
+import re
 
 from reportlab.graphics.barcode.common import I2of5
 from reportlab.lib.colors import black
@@ -43,7 +44,7 @@ class BoletoPDF(object):
         self.fontSizeTitle = 6
         self.fontSizeValue = 9
         self.deltaTitle = self.heightLine - (self.fontSizeTitle + 1)
-        self.deltaFont = self.fontSizeValue + 1
+        self.deltaFont = self.fontSizeTitle + 3
 
         if landscape:
             pagesize = pagesize_landscape(A4)
@@ -75,7 +76,8 @@ class BoletoPDF(object):
                 valorDocumento = "%s" % (line[(index-maxline):index])
                 self.pdfCanvas.drawString(
                     self.space,
-                    (((linhaInicial - 0.5) * self.heightLine - (index * 0.5))) + self.space,
+                    (((linhaInicial - 0.5) * self.heightLine - (index * 0.5)))
+                    + self.space,
                     valorDocumento
                 )
 
@@ -428,7 +430,7 @@ class BoletoPDF(object):
         while(stringWidth(sacado0,
               self.pdfCanvas._fontname,
               self.pdfCanvas._fontsize) > 8.4 * cm):
-            #sacado0 = sacado0[:-2] + u'\u2026'
+            # sacado0 = sacado0[:-2] + u'\u2026'
             sacado0 = sacado0[:-4] + u'...'
 
         self.pdfCanvas.drawString(
@@ -533,11 +535,11 @@ class BoletoPDF(object):
         y += self.heightLine
         self.pdfCanvas.setLineWidth(2)
         self.__horizontalLine(0, y, self.width)
-        self.pdfCanvas.drawString(
-            self.width - (45 * mm) + self.space,
-            y + self.space, 'Código de baixa'
-        )
-        self.pdfCanvas.drawString(0, y + self.space, 'Sacador / Avalista')
+        # self.pdfCanvas.drawString(
+        #    self.width - (45 * mm) + self.space,
+        #    y + self.space,
+        # )
+        # self.pdfCanvas.drawString(0, y + self.space)
 
         y += self.heightLine
         self.pdfCanvas.drawString(0, y + self.deltaTitle, 'Sacado')
@@ -549,9 +551,27 @@ class BoletoPDF(object):
         self.__horizontalLine(0, y, self.width)
         self.pdfCanvas.setFont('Helvetica', self.fontSizeValue)
         for i in range(len(sacado)):
+            idf = -1
+            # Altera dados do sacado para impressão
+            if i == 0:
+                idf = sacado[i].find('CPF')
+                if idf:
+                    sacado[i] = sacado[i].replace(
+                        sacado[i][idf - 2:],
+                        ''
+                    )
+            elif i == 2:
+                idf = re.search(r'[0-9]{5}?\-[0-9]{3}', sacado[i])
+                if idf:
+                    idf = idf.start()
+                    vcep = sacado[i][idf:]
+                    sacado[i] = sacado[i].replace(vcep, '')
+                    sacado[i] = 'CEP ' + vcep + ' - ' + sacado[i]
+                    if sacado[i][-2:]:
+                        sacado[i] = sacado[i][:-2]
             self.pdfCanvas.drawString(
-                15 * mm,
-                (y - 10) - (i * self.deltaFont),
+                2 * mm,
+                (y - 15) - (i * self.deltaFont),
                 sacado[i]
             )
         self.pdfCanvas.setFont('Helvetica', self.fontSizeTitle)
@@ -865,7 +885,7 @@ class BoletoPDF(object):
         y = 5 * mm
         d = self.drawBoletoCarne(boletoDados1, y)
         y += d[1] + 6 * mm
-        #self._drawHorizontalCorteLine(0, y, d[0])
+        # self._drawHorizontalCorteLine(0, y, d[0])
         y += 7 * mm
         if boletoDados2:
             self.drawBoletoCarne(boletoDados2, y)
