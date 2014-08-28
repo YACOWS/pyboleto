@@ -561,7 +561,7 @@ class BoletoPDF(object):
                         ''
                     )
             elif i == 2:
-                idf = re.search(r'[0-9]{5}?\-[0-9]{3}', sacado[i])
+                idf = re.search(r"[0-9]{5}-?[0-9]{3}", sacado[i])
                 if idf:
                     idf = idf.start()
                     vcep = sacado[i][idf:]
